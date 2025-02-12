@@ -19,6 +19,7 @@ public class CorsConfig {
         authCorsConfig.addAllowedOrigin("http://localhost:5174");
         authCorsConfig.addAllowedOrigin("http://localhost:5175");
         authCorsConfig.addAllowedOrigin("http://localhost:4200");
+        authCorsConfig.addAllowedOrigin("http://localhost:8080");
         authCorsConfig.addAllowedMethod("*");
         authCorsConfig.addAllowedHeader("*");
         authCorsConfig.setMaxAge(3600L);
