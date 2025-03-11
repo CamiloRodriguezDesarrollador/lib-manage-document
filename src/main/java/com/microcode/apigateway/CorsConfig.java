@@ -5,6 +5,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
 
 @Configuration
 public class CorsConfig {
@@ -24,8 +28,20 @@ public class CorsConfig {
         authCorsConfig.addAllowedHeader("*");
         authCorsConfig.setMaxAge(3600L);
         authCorsConfig.setAllowCredentials(true);
+
         source.registerCorsConfiguration("/**", authCorsConfig);
 
         return new CorsWebFilter(source);
+    }
+
+    @Bean
+    public WebFilter optionsPreflightFilter() {
+        return (ServerWebExchange exchange, WebFilterChain chain) -> {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequest().getMethod().name())) {
+                exchange.getResponse().setStatusCode(org.springframework.http.HttpStatus.OK);
+                return exchange.getResponse().setComplete();
+            }
+            return chain.filter(exchange);
+        };
     }
 }
