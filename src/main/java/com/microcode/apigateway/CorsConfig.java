@@ -19,6 +19,9 @@ public class CorsConfig {
 
         CorsConfiguration authCorsConfig = new CorsConfiguration();
         authCorsConfig.addAllowedOrigin("https://portal.genialw.com");
+        authCorsConfig.addAllowedOrigin("https://www.activos.com.co");
+        authCorsConfig.addAllowedOrigin("https://www.serviola.com.co");
+        authCorsConfig.addAllowedOrigin("https://www.atecno.com.co");
         authCorsConfig.addAllowedOrigin("http://localhost:5173");
         authCorsConfig.addAllowedOrigin("http://localhost:5174");
         authCorsConfig.addAllowedOrigin("http://localhost:5175");
