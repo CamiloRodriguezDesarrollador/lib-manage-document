@@ -109,19 +109,14 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             if (path.getOpenForUrlToken(uri)) {
                 addBaseHeaders(mutatedRequestBuilder, credentials, token);
                 ServerHttpRequest mutatedRequest = mutatedRequestBuilder.build();
-
-                // Ahora sí puedes inspeccionarlo
-                System.out.println(mutatedRequest);
-                System.out.println("Headers: " + mutatedRequest.getHeaders());
-                System.out.println("URI: " + mutatedRequest.getURI());
-
-                return chain.filter(exchange);
+                return chain.filter(exchange.mutate().request(mutatedRequest).build());
             }
 
             if (path.getOpenForAll(uri)) {
                 addBaseHeaders(mutatedRequestBuilder, credentials, token);
                 addExtendedHeaders(mutatedRequestBuilder, credentials);
-                return chain.filter(exchange);
+                ServerHttpRequest mutatedRequest = mutatedRequestBuilder.build();
+                return chain.filter(exchange.mutate().request(mutatedRequest).build());
             }
 
             if (!authorizationServices.validateAccessRoute(token, path.getAuthorizedForUrl(uri))) {
