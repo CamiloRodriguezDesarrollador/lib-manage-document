@@ -119,7 +119,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 return chain.filter(exchange.mutate().request(mutatedRequest).build());
             }
 
-            if (!authorizationServices.validateAccessRoute(token, path.getAuthorizedForUrl(uri))) {
+            if (!authorizationServices.validateAccessRoute(path.getAuthorizedForUrl(uri),credentials)) {
                 return onError(exchange, HttpStatus.FORBIDDEN);
             }
 

@@ -1,5 +1,6 @@
 package com.microcode.apigateway.services;
 
+import com.microcode.apigateway.entity.Credentials;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -25,14 +26,24 @@ public class AuthorizationServices {
     }
 
 
-    public Boolean validateAccessRoute(String token ,List<String> permissions) {
+    public Boolean validateAccessRoute(List<String> permissions, Credentials credentials) {
         MultiValueMap<String, List<String>> params = new LinkedMultiValueMap<>();
         params.add("permissions", permissions);
 
-        try{
+        try {
             return this.webClient.post()
                     .uri(urlAuthorization + "/validateAccessRoute")
-                    .header("Authorization", "Bearer " + token)
+                    .headers(headers -> {
+                        if (credentials.getCurrentUser() != null)
+                            headers.add("X-Current-User", credentials.getCurrentUser().toString());
+                        if (credentials.getCurrentMail() != null)
+                            headers.add("X-Current-Mail", credentials.getCurrentMail());
+                        if (credentials.getCurrentClient() != null)
+                            headers.add("X-Current-Client", credentials.getCurrentClient().toString());
+
+                        if (credentials.getCurrentType() != null)
+                            headers.add("X-Current-Type", credentials.getCurrentType().toString());
+                    })
                     .bodyValue(params)
                     .retrieve()
                     .bodyToMono(Boolean.class)
@@ -42,6 +53,7 @@ public class AuthorizationServices {
             return false;
         }
     }
+
 
 
 }
