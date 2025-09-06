@@ -103,30 +103,24 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             }
 
             Credentials credentials = authServices.getCredentials(token);
+            System.out.println(credentials);
             ServerHttpRequest.Builder mutatedRequestBuilder = exchange.getRequest().mutate();
 
             if (path.getOpenForUrlToken(uri)) {
-                if (credentials.getCurrentUser() != null)
-                    mutatedRequestBuilder.header("X-Current-User", credentials.getCurrentUser().toString());
-                if (credentials.getCurrentMail() != null)
-                    mutatedRequestBuilder.header("X-Current-Mail", credentials.getCurrentMail());
-                mutatedRequestBuilder.header("X-Current-Token", token);
+                addBaseHeaders(mutatedRequestBuilder, credentials, token);
+                ServerHttpRequest mutatedRequest = mutatedRequestBuilder.build();
+
+                // Ahora sí puedes inspeccionarlo
+                System.out.println(mutatedRequest);
+                System.out.println("Headers: " + mutatedRequest.getHeaders());
+                System.out.println("URI: " + mutatedRequest.getURI());
 
                 return chain.filter(exchange);
             }
 
             if (path.getOpenForAll(uri)) {
-                if (credentials.getCurrentUser() != null)
-                    mutatedRequestBuilder.header("X-Current-User", credentials.getCurrentUser().toString());
-                if (credentials.getCurrentMail() != null)
-                    mutatedRequestBuilder.header("X-Current-Mail", credentials.getCurrentMail());
-                mutatedRequestBuilder.header("X-Current-Token", token);
-                if (credentials.getCurrentClient() != null)
-                    mutatedRequestBuilder.header("X-Current-Client", credentials.getCurrentClient().toString());
-                if (credentials.getCurrentType() != null)
-                    mutatedRequestBuilder.header("X-Current-Type", credentials.getCurrentType().toString());
-                mutatedRequestBuilder.header("X-Current-Token", token);
-
+                addBaseHeaders(mutatedRequestBuilder, credentials, token);
+                addExtendedHeaders(mutatedRequestBuilder, credentials);
                 return chain.filter(exchange);
             }
 
@@ -134,16 +128,8 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 return onError(exchange, HttpStatus.FORBIDDEN);
             }
 
-            if (credentials.getCurrentUser() != null)
-                mutatedRequestBuilder.header("X-Current-User", credentials.getCurrentUser().toString());
-            if (credentials.getCurrentMail() != null)
-                mutatedRequestBuilder.header("X-Current-Mail", credentials.getCurrentMail());
-            mutatedRequestBuilder.header("X-Current-Token", token);
-            if (credentials.getCurrentClient() != null)
-                mutatedRequestBuilder.header("X-Current-Client", credentials.getCurrentClient().toString());
-            if (credentials.getCurrentType() != null)
-                mutatedRequestBuilder.header("X-Current-Type", credentials.getCurrentType().toString());
-            mutatedRequestBuilder.header("X-Current-Token", token);
+            addBaseHeaders(mutatedRequestBuilder, credentials, token);
+            addExtendedHeaders(mutatedRequestBuilder, credentials);
 
             ServerHttpRequest mutatedRequest = mutatedRequestBuilder.build();
             return chain.filter(exchange.mutate().request(mutatedRequest).build());
