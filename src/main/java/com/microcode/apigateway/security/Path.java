@@ -17,6 +17,8 @@ public class Path {
     private List<String> authorized;
     private ArrayList<Path> myRoutesProtected = new ArrayList<>();
     private ArrayList<Path> myRoutesOpen = new ArrayList<>();
+    private ArrayList<Path> myRoutesOpenJustToken = new ArrayList<>();
+    private ArrayList<Path> myRoutesAll = new ArrayList<>();
 
     public Path(String url, List<String> authorized) {
         this.url = url;
@@ -39,8 +41,6 @@ public class Path {
     public String autPaymentSuper;
     @Value("${aut.payment.admin}")
     public String autPaymentAdmin;
-
-
     @Value("${aut.agreement.super}")
     public String autAgreementSuper;
     @Value("${aut.agreement.admin}")
@@ -61,24 +61,24 @@ public class Path {
         myRoutesProtected.add(new Path("/api/audit/quantity", Collections.singletonList(autConsolePlatform)));
         myRoutesProtected.add(new Path("/api/audit/session/dataTable", Collections.singletonList(autConsolePlatform)));
         myRoutesProtected.add(new Path("/api/audit/session/quantity", Collections.singletonList(autConsolePlatform)));
-        myRoutesOpen.add(new Path("/api/audit/create", null));
+        myRoutesOpenJustToken.add(new Path("/api/audit/create", null));
         myRoutesOpen.add(new Path("/api/audit/ping", null));
 
 //       Back Authorization
 
-        myRoutesOpen.add(new Path("/api/authorization/myAuthorization", null));
+        myRoutesAll.add(new Path("/api/authorization/myAuthorization", null));
         myRoutesOpen.add(new Path("/api/authorization/ping", null));
-        myRoutesOpen.add(new Path("/api/authorization/findMyAuthorization", null));
-        myRoutesOpen.add(new Path("/api/authorization/findForIdentities", null));
-        myRoutesOpen.add(new Path("/api/authorization/findApps", null));
-        myRoutesOpen.add(new Path("/api/authorization/findForUser", null));
-        myRoutesOpen.add(new Path("/api/authorization/findForType", null));
-        myRoutesOpen.add(new Path("/api/authorization/findForClient", null));
-        myRoutesOpen.add(new Path("/api/authorization/requestAppJoin", null));
-        myRoutesOpen.add(new Path("/api/authorization/validateAccessRoute", null));
+        myRoutesAll.add(new Path("/api/authorization/findMyAuthorization", null));
+        myRoutesAll.add(new Path("/api/authorization/findForIdentities", null));
+        myRoutesAll.add(new Path("/api/authorization/findApps", null));
+        myRoutesAll.add(new Path("/api/authorization/findForUser", null));
+        myRoutesAll.add(new Path("/api/authorization/findForType", null));
+        myRoutesAll.add(new Path("/api/authorization/findForClient", null));
+        myRoutesAll.add(new Path("/api/authorization/requestAppJoin", null));
+        myRoutesOpenJustToken.add(new Path("/api/authorization/validateAccessRoute", null));
         myRoutesOpen.add(new Path("/api/authorization/health", null));
-        myRoutesOpen.add(new Path("/api/authorization/validatePermission", null));
-        myRoutesOpen.add(new Path("/api/authorization/findProcess", null));
+        myRoutesAll.add(new Path("/api/authorization/validatePermission", null));
+        myRoutesAll.add(new Path("/api/authorization/findProcess", null));
         myRoutesProtected.add(new Path("/api/authorization/findAll", Collections.singletonList(autConsolePlatform)));
         myRoutesProtected.add(new Path("/api/authorization/dataTable", Collections.singletonList(autConsolePlatform)));
         myRoutesProtected.add(new Path("/api/authorization/quantity", Collections.singletonList(autConsolePlatform)));
@@ -94,10 +94,10 @@ public class Path {
 
 //       Back client
 
-        myRoutesOpen.add(new Path("/api/client/findClientForCode", null));
-        myRoutesOpen.add(new Path("/api/client/findDataPrincipal", null));
-        myRoutesOpen.add(new Path("/api/client/findDataProfile", null));
-        myRoutesOpen.add(new Path("/api/client/findMyClient", null));
+        myRoutesAll.add(new Path("/api/client/findClientForCode", null));
+        myRoutesAll.add(new Path("/api/client/findDataPrincipal", null));
+        myRoutesAll.add(new Path("/api/client/findDataProfile", null));
+        myRoutesAll.add(new Path("/api/client/findMyClient", null));
 
         myRoutesProtected.add(new Path("/api/client/allInformation", Collections.singletonList(autConsolePlatform)));
         myRoutesProtected.add(new Path("/api/client/dataTable", Collections.singletonList(autConsolePlatform)));
@@ -153,7 +153,7 @@ public class Path {
         myRoutesProtected.add(new Path("/api/console/type/create", Collections.singletonList(autConsolePlatform)));
         myRoutesProtected.add(new Path("/api/console/type", Collections.singletonList(autConsolePlatform)));
 
-        myRoutesOpen.add(new Path("/api/console/type/findForClient", null));
+        myRoutesAll.add(new Path("/api/console/type/findForClient", null));
 
         myRoutesProtected.add(new Path("/api/console/agreement-accept", Arrays.asList( autAgreementSuper,autAgreementAdmin,autAgreementReader,autAgreementProvider)));
         myRoutesProtected.add(new Path("/api/console/agreement-accept/code_company", Arrays.asList( autAgreementSuper,autAgreementAdmin,autAgreementReader,autAgreementProvider)));
@@ -183,21 +183,21 @@ public class Path {
         myRoutesProtected.add(new Path("/api/user/closeSession", Collections.singletonList(autConsolePlatform)));
         myRoutesProtected.add(new Path("/api/user/activeBlock", Collections.singletonList(autConsolePlatform)));
         myRoutesProtected.add(new Path("/api/user/allInformationFilter", Collections.singletonList(autConsolePlatform)));
-        myRoutesOpen.add(new Path("/api/user/findDate", null));
-        myRoutesOpen.add(new Path("/api/user/findDataPrincipal", null));
+        myRoutesOpenJustToken.add(new Path("/api/user/findDate", null));
+        myRoutesOpenJustToken.add(new Path("/api/user/findDataPrincipal", null));
         myRoutesOpen.add(new Path("/api/user/ping", null));
         myRoutesProtected.add(new Path("/api/user/findForId", Collections.singletonList(autConsolePlatform)));
         myRoutesProtected.add(new Path("/api/user/updateDriveId", Collections.singletonList(autConsolePlatform)));
         myRoutesProtected.add(new Path("/api/user/findForUserId", Arrays.asList(autConsolePlatform,autProviderSuper)));
         myRoutesProtected.add(new Path("/api/user/create-admin", Arrays.asList(autConsolePlatform,autProviderSuper)));
-        myRoutesOpen.add(new Path("/api/user/update", null));
-        myRoutesOpen.add(new Path("/api/user/findForMail", null));
-        myRoutesOpen.add(new Path("/api/user/findName", null));
+        myRoutesOpenJustToken.add(new Path("/api/user/update", null));
+        myRoutesOpenJustToken.add(new Path("/api/user/findForMail", null));
+        myRoutesOpenJustToken.add(new Path("/api/user/findName", null));
 
 
 //        Back provider
         myRoutesOpen.add(new Path("/api/provider/provider/ping", null));
-        myRoutesOpen.add(new Path("/api/provider/provider/createRequest", null));
+        myRoutesOpenJustToken.add(new Path("/api/provider/provider/createRequest", null));
 
         myRoutesProtected.add(new Path("/api/provider/authentication/quantity", Arrays.asList(autConsolePlatform,autProviderSuper)));
         myRoutesProtected.add(new Path("/api/provider/authentication/dataTable", Arrays.asList(autConsolePlatform,autProviderSuper)));
@@ -513,6 +513,16 @@ public class Path {
 
     public Boolean getOpenForUrl(String url) {
         return myRoutesOpen.stream()
+                .anyMatch(path -> path.getUrl().equals(url));
+    }
+
+    public Boolean getOpenForUrlToken(String url) {
+        return myRoutesOpenJustToken.stream()
+                .anyMatch(path -> path.getUrl().equals(url));
+    }
+
+    public Boolean getOpenForAll(String url) {
+        return myRoutesAll.stream()
                 .anyMatch(path -> path.getUrl().equals(url));
     }
 
