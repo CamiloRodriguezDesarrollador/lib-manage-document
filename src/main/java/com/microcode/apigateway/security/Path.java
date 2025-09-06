@@ -237,6 +237,7 @@ public class Path {
 
         myRoutesOpen.add(new Path("/api/provider-document/provider-document/ping", null));
         myRoutesOpen.add(new Path("/api/provider-document/provider-document/sendMailPendDocument", null));
+        myRoutesOpen.add(new Path("/api/provider-document/provider-document/provider-document", null));
 
         myRoutesProtected.add(new Path("/api/provider-document/provider-document-file/download", Arrays.asList(autConsolePlatform,autProviderSuper,autProviderAdmin,autProviderReader,autProviderProvider)));
         myRoutesProtected.add(new Path("/api/provider-document/provider-document-file/downloadInternalDocument", Arrays.asList(autConsolePlatform,autProviderSuper,autProviderAdmin,autProviderReader,autProviderProvider)));
