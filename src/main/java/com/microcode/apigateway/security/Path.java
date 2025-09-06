@@ -94,9 +94,9 @@ public class Path {
 
 //       Back client
 
-        myRoutesAll.add(new Path("/api/client/findClientForCode", null));
-        myRoutesAll.add(new Path("/api/client/findDataPrincipal", null));
-        myRoutesAll.add(new Path("/api/client/findDataProfile", null));
+        myRoutesOpenJustToken.add(new Path("/api/client/findClientForCode", null));
+        myRoutesOpenJustToken.add(new Path("/api/client/findDataPrincipal", null));
+        myRoutesOpenJustToken.add(new Path("/api/client/findDataProfile", null));
         myRoutesAll.add(new Path("/api/client/findMyClient", null));
 
         myRoutesProtected.add(new Path("/api/client/allInformation", Collections.singletonList(autConsolePlatform)));
@@ -153,7 +153,7 @@ public class Path {
         myRoutesProtected.add(new Path("/api/console/type/create", Collections.singletonList(autConsolePlatform)));
         myRoutesProtected.add(new Path("/api/console/type", Collections.singletonList(autConsolePlatform)));
 
-        myRoutesAll.add(new Path("/api/console/type/findForClient", null));
+        myRoutesOpenJustToken.add(new Path("/api/console/type/findForClient", null));
 
         myRoutesProtected.add(new Path("/api/console/agreement-accept", Arrays.asList( autAgreementSuper,autAgreementAdmin,autAgreementReader,autAgreementProvider)));
         myRoutesProtected.add(new Path("/api/console/agreement-accept/code_company", Arrays.asList( autAgreementSuper,autAgreementAdmin,autAgreementReader,autAgreementProvider)));
