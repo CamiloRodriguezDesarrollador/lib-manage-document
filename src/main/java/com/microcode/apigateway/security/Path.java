@@ -153,7 +153,7 @@ public class Path {
         myRoutesProtected.add(new Path("/api/console/type/create", Collections.singletonList(autConsolePlatform)));
         myRoutesProtected.add(new Path("/api/console/type", Collections.singletonList(autConsolePlatform)));
 
-        myRoutesOpenJustToken.add(new Path("/api/console/type/findForClient", null));
+        myRoutesAll.add(new Path("/api/console/type/findForClient", null));
 
         myRoutesProtected.add(new Path("/api/console/agreement-accept", Arrays.asList( autAgreementSuper,autAgreementAdmin,autAgreementReader,autAgreementProvider)));
         myRoutesProtected.add(new Path("/api/console/agreement-accept/code_company", Arrays.asList( autAgreementSuper,autAgreementAdmin,autAgreementReader,autAgreementProvider)));
