@@ -51,93 +51,84 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
-            System.out.println("llega");
             String clientIp = Objects.requireNonNull(exchange.getRequest().getRemoteAddress())
                     .getAddress().getHostAddress();
 
+            System.out.println("entra");
+            String pong = redisTemplate.getConnectionFactory().getConnection().ping();
+            System.out.println("Redis responde: " + pong);
+
             // 1️⃣ Verificar si esta bloqueado en REDIS
             String blockedKey = "blocked:" + clientIp;
-
-            System.out.println("llegsssa");
-            String pong = redisTemplate.getConnectionFactory().getConnection().ping();
-            System.out.println("Respuesta Redis: " + pong); // debería imprimir PONG
-
             if (Boolean.TRUE.equals(redisTemplate.hasKey(blockedKey))) {
-                System.out.println("llegssssssa");
-
                 exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
                 return exchange.getResponse().setComplete();
             }
-
-            ServerHttpResponse response = exchange.getResponse();
-            response.setStatusCode(HttpStatus.OK);
-
-            return response.setComplete();
 //
             // 2️⃣ Limite de peticiónes por segundo
-//            RateLimiter rateLimiter = rateLimiters.computeIfAbsent(clientIp, ip ->
-//                    RateLimiter.of(ip, RateLimiterConfig.custom()
-//                            .limitForPeriod(5)
-//                            .limitRefreshPeriod(Duration.ofSeconds(1))
-//                            .timeoutDuration(Duration.ZERO)
-//                            .build()
-//                    )
-//            );
-//
-//            if (!rateLimiter.acquirePermission()) {
-//                String msg = String.format("🚨 IP bloqueada: %s (exceso de peticiones)", clientIp);
-//                notifyServices.notifyChatApps(msg);
-//                // Bloquear IP en Redis por 24h
-//                redisTemplate.opsForValue().set(blockedKey, "true", BLOCK_DURATION_HOURS, TimeUnit.HOURS);
-//                exchange.getResponse().setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
-//                return exchange.getResponse().setComplete();
-//            }
-//
-//
-//
-//            // 3️⃣ Rutas abiertas
-//            String uri = exchange.getRequest().getURI().getPath();
-//            if (path.getOpenForUrl(uri)) {
-//                return chain.filter(exchange);
-//            }
-//
-//            // 4️⃣ Autenticación y autorización
-//            String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-//            if (!authHeader.startsWith("Bearer ")) {
-//                return onError(exchange, HttpStatus.UNAUTHORIZED);
-//            }
-//            String token = authHeader.substring(7);
-//
-//            if (!authServices.validateToken(token)) {
-//                return onError(exchange, HttpStatus.UNAUTHORIZED);
-//            }
-//
-//            Credentials credentials = authServices.getCredentials(token);
-//            System.out.println(credentials);
-//            ServerHttpRequest.Builder mutatedRequestBuilder = exchange.getRequest().mutate();
-//
-//            if (path.getOpenForUrlToken(uri)) {
-//                addBaseHeaders(mutatedRequestBuilder, credentials, token);
-//                ServerHttpRequest mutatedRequest = mutatedRequestBuilder.build();
-//                return chain.filter(exchange.mutate().request(mutatedRequest).build());
-//            }
-//
-//            if (path.getOpenForAll(uri)) {
-//                addBaseHeaders(mutatedRequestBuilder, credentials, token);
-//                addExtendedHeaders(mutatedRequestBuilder, credentials);
-//                ServerHttpRequest mutatedRequest = mutatedRequestBuilder.build();
-//                return chain.filter(exchange.mutate().request(mutatedRequest).build());
-//            }
-//
-//            if (!authorizationServices.validateAccessRoute(path.getAuthorizedForUrl(uri),credentials)) {
-//                return onError(exchange, HttpStatus.FORBIDDEN);
-//            }
-//
-//            addBaseHeaders(mutatedRequestBuilder, credentials, token);
-//            addExtendedHeaders(mutatedRequestBuilder, credentials);
-//
-//            ServerHttpRequest mutatedRequest = mutatedRequestBuilder.build();
-//            return chain.filter(exchange.mutate().request(mutatedRequest).build());
+            RateLimiter rateLimiter = rateLimiters.computeIfAbsent(clientIp, ip ->
+                    RateLimiter.of(ip, RateLimiterConfig.custom()
+                            .limitForPeriod(25)
+                            .limitRefreshPeriod(Duration.ofSeconds(1))
+                            .timeoutDuration(Duration.ZERO)
+                            .build()
+                    )
+            );
+
+            if (!rateLimiter.acquirePermission()) {
+                String msg = String.format("🚨 IP bloqueada: %s (exceso de peticiones)", clientIp);
+                notifyServices.notifyChatApps(msg);
+                // Bloquear IP en Redis por 24h
+                redisTemplate.opsForValue().set(blockedKey, "true", BLOCK_DURATION_HOURS, TimeUnit.HOURS);
+                exchange.getResponse().setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
+                return exchange.getResponse().setComplete();
+            }
+
+
+
+            // 3️⃣ Rutas abiertas
+            String uri = exchange.getRequest().getURI().getPath();
+            if (path.getOpenForUrl(uri)) {
+                return chain.filter(exchange);
+            }
+
+            // 4️⃣ Autenticación y autorización
+            String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+            if (!authHeader.startsWith("Bearer ")) {
+                return onError(exchange, HttpStatus.UNAUTHORIZED);
+            }
+            String token = authHeader.substring(7);
+
+            if (!authServices.validateToken(token)) {
+                return onError(exchange, HttpStatus.UNAUTHORIZED);
+            }
+
+            Credentials credentials = authServices.getCredentials(token);
+            System.out.println(credentials);
+            ServerHttpRequest.Builder mutatedRequestBuilder = exchange.getRequest().mutate();
+
+            if (path.getOpenForUrlToken(uri)) {
+                addBaseHeaders(mutatedRequestBuilder, credentials, token);
+                ServerHttpRequest mutatedRequest = mutatedRequestBuilder.build();
+                return chain.filter(exchange.mutate().request(mutatedRequest).build());
+            }
+
+            if (path.getOpenForAll(uri)) {
+                addBaseHeaders(mutatedRequestBuilder, credentials, token);
+                addExtendedHeaders(mutatedRequestBuilder, credentials);
+                ServerHttpRequest mutatedRequest = mutatedRequestBuilder.build();
+                return chain.filter(exchange.mutate().request(mutatedRequest).build());
+            }
+
+            if (!authorizationServices.validateAccessRoute(path.getAuthorizedForUrl(uri),credentials)) {
+                return onError(exchange, HttpStatus.FORBIDDEN);
+            }
+
+            addBaseHeaders(mutatedRequestBuilder, credentials, token);
+            addExtendedHeaders(mutatedRequestBuilder, credentials);
+
+            ServerHttpRequest mutatedRequest = mutatedRequestBuilder.build();
+            return chain.filter(exchange.mutate().request(mutatedRequest).build());
         };
     }
 
