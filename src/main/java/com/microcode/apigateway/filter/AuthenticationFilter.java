@@ -103,10 +103,12 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             }
 
             Credentials credentials = authServices.getCredentials(token);
+            System.out.println(credentials);
             ServerHttpRequest.Builder mutatedRequestBuilder = exchange.getRequest().mutate();
 
             if (path.getOpenForUrlToken(uri)) {
                 addBaseHeaders(mutatedRequestBuilder, credentials, token);
+                System.out.println(mutatedRequestBuilder);
                 return chain.filter(exchange);
             }
 
