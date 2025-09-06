@@ -51,34 +51,34 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
-            String clientIp = Objects.requireNonNull(exchange.getRequest().getRemoteAddress())
-                    .getAddress().getHostAddress();
+//            String clientIp = Objects.requireNonNull(exchange.getRequest().getRemoteAddress())
+//                    .getAddress().getHostAddress();
 
             // 1️⃣ Verificar si esta bloqueado en REDIS
-            String blockedKey = "blocked:" + clientIp;
-            if (Boolean.TRUE.equals(redisTemplate.hasKey(blockedKey))) {
-                exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
-                return exchange.getResponse().setComplete();
-            }
-
-            // 2️⃣ Limite de peticiónes por segundo
-            RateLimiter rateLimiter = rateLimiters.computeIfAbsent(clientIp, ip ->
-                    RateLimiter.of(ip, RateLimiterConfig.custom()
-                            .limitForPeriod(15)
-                            .limitRefreshPeriod(Duration.ofSeconds(1))
-                            .timeoutDuration(Duration.ZERO)
-                            .build()
-                    )
-            );
-
-            if (!rateLimiter.acquirePermission()) {
-                String msg = String.format("🚨 IP bloqueada: %s (exceso de peticiones)", clientIp);
-                notifyServices.notifyChatApps(msg);
-                // Bloquear IP en Redis por 24h
-                redisTemplate.opsForValue().set(blockedKey, "true", BLOCK_DURATION_HOURS, TimeUnit.HOURS);
-                exchange.getResponse().setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
-                return exchange.getResponse().setComplete();
-            }
+//            String blockedKey = "blocked:" + clientIp;
+//            if (Boolean.TRUE.equals(redisTemplate.hasKey(blockedKey))) {
+//                exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+//                return exchange.getResponse().setComplete();
+//            }
+//
+//            // 2️⃣ Limite de peticiónes por segundo
+//            RateLimiter rateLimiter = rateLimiters.computeIfAbsent(clientIp, ip ->
+//                    RateLimiter.of(ip, RateLimiterConfig.custom()
+//                            .limitForPeriod(15)
+//                            .limitRefreshPeriod(Duration.ofSeconds(1))
+//                            .timeoutDuration(Duration.ZERO)
+//                            .build()
+//                    )
+//            );
+//
+//            if (!rateLimiter.acquirePermission()) {
+//                String msg = String.format("🚨 IP bloqueada: %s (exceso de peticiones)", clientIp);
+//                notifyServices.notifyChatApps(msg);
+//                // Bloquear IP en Redis por 24h
+//                redisTemplate.opsForValue().set(blockedKey, "true", BLOCK_DURATION_HOURS, TimeUnit.HOURS);
+//                exchange.getResponse().setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
+//                return exchange.getResponse().setComplete();
+//            }
 
 //            ServerHttpResponse response = exchange.getResponse();
 //            response.setStatusCode(HttpStatus.OK);
