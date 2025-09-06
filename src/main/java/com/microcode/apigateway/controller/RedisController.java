@@ -30,4 +30,9 @@ public class RedisController {
         String blockedKey = "blocked:" + clientIp;
         redisTemplate.opsForValue().set(blockedKey, "true", BLOCK_DURATION_HOURS, TimeUnit.HOURS);
     }
+
+    @GetMapping("/ping")
+    public boolean ping() {
+        return true;
+    }
 }
