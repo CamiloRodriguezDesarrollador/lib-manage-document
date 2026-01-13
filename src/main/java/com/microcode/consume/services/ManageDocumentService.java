@@ -16,11 +16,19 @@ import java.io.IOException;
 import java.util.Map;
 
 @Service
-public class ManageDocumentServices {
+public class ManageDocumentService implements ManageDocumentServiceI {
 
     private final WebClient webClient;
 
-    public ManageDocumentServices(@Value("${api.environment}") String apiEnvironment) {
+
+    /**
+     * Inicializacion del servicio
+     *
+     * @param apiEnvironment environment connect : dev o prod
+     * @param apiKey      Api Key del aplicativo
+     */
+    public ManageDocumentService(@Value("${api.environment}") String apiEnvironment,
+                                 @Value("${api.key}") String apiKey) {
 
         String baseUrl;
         if ("prod".equalsIgnoreCase(apiEnvironment)) baseUrl = "https://back-manage-document-842209943869.us-east1.run.app";
@@ -28,6 +36,7 @@ public class ManageDocumentServices {
 
         this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
+                .defaultHeader("X-Current-Token", apiKey)
                 .build();
     }
 
@@ -39,7 +48,7 @@ public class ManageDocumentServices {
      * @param params     Lista de mapas con los parámetros a enviar
      * @return Mono<String> con la respuesta del endpoint
      */
-    public Mono<RegisterDocument> registerDocument(String documentId, byte[] fileBytes, String filename, Map<String, Object> params) {
+    public Mono<RegisterDocument> saveDocument(String documentId, byte[] fileBytes, String filename, Map<String, String> params) {
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("documentId", documentId);
@@ -70,8 +79,8 @@ public class ManageDocumentServices {
     /**
      * Sobrecarga: MultipartFile (Spring MVC)
      */
-    public Mono<RegisterDocument> registerDocument(String documentId, MultipartFile file, Map<String, Object> params) throws IOException {
-        return registerDocument(documentId, file.getBytes(), file.getOriginalFilename(), params);
+    public Mono<RegisterDocument> saveDocument(String documentId, MultipartFile file, Map<String, String> params) throws IOException {
+        return saveDocument(documentId, file.getBytes(), file.getOriginalFilename(), params);
     }
 
     /**
